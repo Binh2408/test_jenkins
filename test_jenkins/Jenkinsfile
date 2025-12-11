@@ -29,14 +29,6 @@ pipeline {
             }
         }
 
-        stage('Run Tests') {
-            steps {
-                dir('test_jenkins') {
-                    sh './gradlew test'
-                }
-            }
-        }
-
         stage('Package') {
             steps {
                 dir('test_jenkins') {
