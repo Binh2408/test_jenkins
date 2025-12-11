@@ -1,0 +1,56 @@
+pipeline {
+    agent any
+
+    environment {
+        // Tránh lỗi quyền khi chạy gradlew
+        GRADLE_USER_HOME = "${WORKSPACE}/.gradle"
+    }
+
+    stages {
+        stage('Clone code') {
+            steps {
+                git branch: 'main',
+                    url: 'https://github.com/Binh2408/test_jenkins'
+            }
+        }
+
+        stage('Grant Permission for Gradle') {
+            steps {
+                sh 'chmod +x ./gradlew'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh './gradlew clean build -x test'
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                sh './gradlew test'
+            }
+        }
+
+        stage('Package') {
+            steps {
+                sh './gradlew bootJar'
+            }
+        }
+
+        stage('Archive Artifacts') {
+            steps {
+                archiveArtifacts artifacts: 'build/libs/*.jar', fingerprint: true
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "🎉 Build Spring Boot (Gradle) thành công!"
+        }
+        failure {
+            echo "❌ Build Spring Boot thất bại!"
+        }
+    }
+}
