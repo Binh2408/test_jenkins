@@ -2,7 +2,6 @@ pipeline {
     agent any
 
     environment {
-        // Tránh lỗi quyền khi chạy gradlew
         GRADLE_USER_HOME = "${WORKSPACE}/.gradle"
     }
 
@@ -16,31 +15,39 @@ pipeline {
 
         stage('Grant Permission for Gradle') {
             steps {
-                sh 'chmod +x ./gradlew'
+                dir('test_jenkins') {
+                    sh 'chmod +x ./gradlew'
+                }
             }
         }
 
         stage('Build') {
             steps {
-                sh './gradlew clean build -x test'
+                dir('test_jenkins') {
+                    sh './gradlew clean build -x test'
+                }
             }
         }
 
         stage('Run Tests') {
             steps {
-                sh './gradlew test'
+                dir('test_jenkins') {
+                    sh './gradlew test'
+                }
             }
         }
 
         stage('Package') {
             steps {
-                sh './gradlew bootJar'
+                dir('test_jenkins') {
+                    sh './gradlew bootJar'
+                }
             }
         }
 
         stage('Archive Artifacts') {
             steps {
-                archiveArtifacts artifacts: 'build/libs/*.jar', fingerprint: true
+                archiveArtifacts artifacts: 'test_jenkins/build/libs/*.jar', fingerprint: true
             }
         }
     }
